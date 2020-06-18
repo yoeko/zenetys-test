@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Zenetys Test</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/simple-sidebar.css" rel="stylesheet">
+
+  <style>
+    .list-group-item:first-child {
+      border: none !important;
+    }
+    .list-group-flush .list-group-item {
+      border: none !important;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div class="d-flex" id="wrapper">
+
+    <!-- Sidebar -->
+    <div class="bg-light border-right shadow" id="sidebar-wrapper">
+      <div class="sidebar-heading"> Zenetys Ping Test </div>
+      <div class="list-group list-group-flush">
+        <a href="" class="list-group-item list-group-item-action bg-light">Dashboard</a>
+        
+        <!-- Menus fictifs pour demontrer les eventuels autres fonctionnalites -->
+        <a href="#" class="list-group-item list-group-item-action bg-light">Shortcuts</a>
+        <a href="#" class="list-group-item list-group-item-action bg-light">Overview</a>
+        <a href="#" class="list-group-item list-group-item-action bg-light">Events</a>
+        <a href="#" class="list-group-item list-group-item-action bg-light">Profile</a>
+        <a href="#" class="list-group-item list-group-item-action bg-light">Status</a>
+      </div>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+
+      <nav class="navbar navbar-expand-lg border-bottom" style="background-color: rgba(14, 110, 132, 1);">
+
+        <button class="btn btn-primary" id="menu-toggle">
+          Back
+        </button>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+      </nav>
+
+      <div class="container">
+          <h1 class="mt-4 mb-5">Ping Dashdoard</h1>
+
+        <div class="row">
+  
+          <div class="col-sm-4">
+            <div class="card shadow">
+              <div class="card-body">
+                <form>
+                  <div class="form-group">
+                    <label for="site">Ping Address</label>
+                    <small id="" class="form-text text-muted">Please put here the address you want to ping.</small>
+                    <input type="text" name="site" id="site" value="https://ping.zenetys.com/api" class="form-control" placeholder="the site address" >
+                  </div>
+                  <button type="button" class="btn btn-outline-primary" id="test" onclick="pingSite(form)" >Go Ping</button>
+                  <button type="button" class="btn btn-outline-primary" id="test" onclick="stop(form)" >Stop Ping</button>
+                </form>
+              </div>
+            </div>
+          </div>
+  
+          <div class="col-sm-6">
+            <div class="card shadow">
+              <div class="card-body">
+                <h5 class="card-title">Here the ping result</h5>
+
+                <div style="overflow-x: scroll;overflow-y: scroll;height: 300px;">
+                  <table id="myResultTable" class="table table-striped table-hover table-sm">
+                    <thead class="thead-dark">
+                      <tr>
+                        <th>Site</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        
+        </div>
+      </div>
+
+    </div>
+    <!-- /#page-content-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Menu Toggle Script -->
+  <script>
+    $("#menu-toggle").click(function(e) {
+      e.preventDefault();
+      $("#wrapper").toggleClass("toggled");
+    });
+  </script>
+
+  <script>
+    
+    var site = $('#site').val(); // le site sur lequel le ping se fer
+    var spanFalse = '<span class="class=badge badge-danger"> false </span>'  //retour en cas de reussite
+    var spanTrue = '<span class="class=badge badge-pill badge-success"> false </span>'
+
+
+    var status = false;
+    
+    function pingSite(){
+
+        $.ajax({
+            method: 'GET',
+            url: site,
+            dataType: 'jsonp',
+            timeout: 5000,
+            success: function(data) {
+              status = true
+              $("#myResultTable > tbody").append("<tr><td>" + site + "</td><td>" + spanTrue + "</td></tr>");
+            
+            },
+            error: function() {
+              status = false
+              $("#myResultTable > tbody").append("<tr><td>" + site + "</td><td>" + spanFalse + "</span></td></tr>");
+            },
+            complete: function(){
+              setTimeout(pingSite, 1000);
+            }
+        });
+
+    }
+
+    function stop(form){
+      // pingSite(false);
+    }         
+    
+  </script>
+
+</body>
+
+</html>
