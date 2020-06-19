@@ -23,6 +23,21 @@
     .list-group-flush .list-group-item {
       border: none !important;
     }
+
+    /* Scroll bar customize */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1; 
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555; 
+    }
   </style>
 
 </head>
@@ -67,15 +82,22 @@
 
         <div class="row">
   
-          <div class="col-sm-4">
+          <div class="col-sm-5">
             <div class="card shadow">
               <div class="card-body">
-                <form>
+                <form id="myForm" method="GET">
                   <div class="form-group">
                     <label for="site">Ping Address</label>
                     <small id="" class="form-text text-muted">Please put here the address you want to ping.</small>
                     <input type="text" name="site" id="site" value="https://ping.zenetys.com/api" class="form-control" placeholder="the site address" >
                   </div>
+
+                  <div class="form-group">
+                    <label for="timeHere">Time Out</label>
+                    <small id="" class="form-text text-muted">Please enter here a timeout you want for each ping. 1 second by default.</small>
+                    <input type="text" name="timeHere" id="timeHere" class="form-control">
+                  </div>
+
                   <button type="button" class="btn btn-outline-primary" id="test" onclick="pingSite(form)" >Go Ping</button>
                   <button type="button" class="btn btn-outline-primary" id="test" onclick="stop(form)" >Stop Ping</button>
                 </form>
@@ -88,12 +110,13 @@
               <div class="card-body">
                 <h5 class="card-title">Here the ping result</h5>
 
-                <div style="overflow-x: scroll;overflow-y: scroll;height: 300px;">
+                <div id="resultContent" style="overflow-y: scroll;height: 300px;">
                   <table id="myResultTable" class="table table-striped table-hover table-sm">
                     <thead class="thead-dark">
                       <tr>
                         <th>Site</th>
                         <th>Status</th>
+                        <th>Time</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -130,40 +153,69 @@
   </script>
 
   <script>
-    
-    var site = $('#site').val(); // le site sur lequel le ping se fer
-    var spanFalse = '<span class="class=badge badge-danger"> false </span>'  //retour en cas de reussite
-    var spanTrue = '<span class="class=badge badge-pill badge-success"> false </span>'
+    var stopValue = false; //value to test if the user stop the ping
+    var spanFalse = '<span class="class=badge badge-pill badge-danger"> false </span>'  //the return when ping does not work
+    var spanTrue = '<span class="class=badge badge-pill badge-success"> true </span>' // the return when ping works
 
-
-    var status = false;
-    
+    // request function
     function pingSite(){
+      var site = $('#site').val(); // the site we want to ping
+      var timeHere = document.getElementById("timeHere").value*1000; // convert the time in seconds
 
-        $.ajax({
-            method: 'GET',
-            url: site,
-            dataType: 'jsonp',
-            timeout: 5000,
-            success: function(data) {
-              status = true
-              $("#myResultTable > tbody").append("<tr><td>" + site + "</td><td>" + spanTrue + "</td></tr>");
-            
-            },
-            error: function() {
-              status = false
-              $("#myResultTable > tbody").append("<tr><td>" + site + "</td><td>" + spanFalse + "</span></td></tr>");
-            },
-            complete: function(){
-              setTimeout(pingSite, 1000);
+      // test if the time is set in the field
+      if (timeHere=="") {
+        var timeHere = 1000;
+      }
+
+      var start_time = new Date().getTime(); // start time variable
+
+      // begin the request
+      $.ajax({
+          method: 'GET',
+          url: site,
+          dataType: 'json',
+          timeout: timeHere,
+          success: function(data) {
+            var request_time = new Date().getTime() - start_time;
+            $("#myResultTable > tbody").append("<tr><td>" + site + "</td><td>" + spanTrue + "</td> <td>" + request_time / 1000 + "</td> </tr>");
+          },
+          error: function() {
+            var request_time = new Date().getTime() - start_time;
+            $("#myResultTable > tbody").append("<tr><td>" + site + "</td><td>" + spanFalse + "</td> <td>" + request_time / 1000 + "</td></tr>");
+          },
+          complete: function(){
+
+            if (stopValue) {
+              
+            }else{
+              setTimeout(pingSite, 1000);  
             }
-        });
+
+            $("#resultContent").on('scroll', function(){
+              scrollOneTime = true;
+            });
+
+            updateScroll();        
+
+          }
+      });
 
     }
 
+    // stop the ping function
     function stop(form){
-      // pingSite(false);
-    }         
+      stopValue = true;
+    }   
+
+    // update automatically the scroll
+    function updateScroll(){
+      var element = document.getElementById("resultContent");
+      element.scrollTop = element.scrollHeight;
+    }
+
+    $("#resultContent").on('scroll', function(){
+        scrolled=true;
+    });
     
   </script>
 
